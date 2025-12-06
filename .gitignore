@@ -362,6 +362,7 @@ FodyWeavers.xsd
 # Migrations/
 
 # Sensitive files - DO NOT COMMIT
+# appsettings.json is kept as template (without passwords)
 appsettings.Development.json
 appsettings.Production.json
 *.secrets.json
