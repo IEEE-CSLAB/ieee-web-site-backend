@@ -2,20 +2,26 @@ using IEEEBackend.Data;
 using IEEEBackend.Interfaces;
 using IEEEBackend.Repositories;
 using Microsoft.EntityFrameworkCore;
+using IEEEBackend.Interfaces;   // Eklendi
+using IEEEBackend.Repositories; // Eklendi
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add DbContext
+//DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Eklendi 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+// Eklendi
+builder.Services.AddScoped<ICommitteeRepository, CommitteeRepository>();
 // Add Repositories
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventPhotoRepository, EventPhotoRepository>();
