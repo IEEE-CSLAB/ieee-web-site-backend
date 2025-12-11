@@ -1,4 +1,6 @@
 using IEEEBackend.Data;
+using IEEEBackend.Interfaces;
+using IEEEBackend.Repositories;
 using Microsoft.EntityFrameworkCore;
 using IEEEBackend.Interfaces;   // Eklendi
 using IEEEBackend.Repositories; // Eklendi
@@ -20,6 +22,9 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Eklendi
 builder.Services.AddScoped<ICommitteeRepository, CommitteeRepository>();
+// Add Repositories
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IEventPhotoRepository, EventPhotoRepository>();
 
 var app = builder.Build();
 
@@ -31,6 +36,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable static file serving
+app.UseStaticFiles();
 
 app.UseAuthorization();
 
