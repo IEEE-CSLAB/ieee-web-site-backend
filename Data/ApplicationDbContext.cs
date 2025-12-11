@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Event> Events { get; set; }
     public DbSet<BlogPost> BlogPosts { get; set; }
     public DbSet<EventCommittee> EventCommittees { get; set; }
+    public DbSet<EventPhoto> EventPhotos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +51,13 @@ public class ApplicationDbContext : DbContext
             .HasOne(bp => bp.Committee)
             .WithMany(c => c.BlogPosts)
             .HasForeignKey(bp => bp.CommitteeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // EventPhoto relationship
+        modelBuilder.Entity<EventPhoto>()
+            .HasOne(ep => ep.Event)
+            .WithMany(e => e.EventPhotos)
+            .HasForeignKey(ep => ep.EventId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure timestamps for BaseEntity

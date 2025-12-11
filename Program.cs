@@ -1,4 +1,6 @@
 using IEEEBackend.Data;
+using IEEEBackend.Interfaces;
+using IEEEBackend.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +16,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add Repositories
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IEventPhotoRepository, EventPhotoRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,6 +30,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable static file serving
+app.UseStaticFiles();
 
 app.UseAuthorization();
 

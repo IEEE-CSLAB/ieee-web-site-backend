@@ -1,17 +1,27 @@
-namespace IEEEBackend.Models;
+using System.ComponentModel.DataAnnotations;
 
-public class Event : BaseEntity
+namespace IEEEBackend.Dtos;
+
+public class UpdateEventDto
 {
+    [Required]
+    [StringLength(200)]
     public string Title { get; set; } = string.Empty;
+
     public string? Description { get; set; }
+
+    [Required]
     public DateTime StartDate { get; set; }
+
+    [Required]
     public DateTime EndDate { get; set; }
+
     public string? Location { get; set; }
+
     public int? Quota { get; set; }
+
     public bool IsImportant { get; set; }
 
-    // Navigation properties
-    public ICollection<EventCommittee> EventCommittees { get; set; } = new List<EventCommittee>();
-    public ICollection<EventPhoto> EventPhotos { get; set; } = new List<EventPhoto>();
+    public List<int>? CommitteeIds { get; set; }
 }
 
