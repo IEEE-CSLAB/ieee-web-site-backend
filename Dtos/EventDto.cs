@@ -17,14 +17,6 @@ public class EventDto
     public List<EventPhotoDto>? Photos { get; set; }
 }
 
-public class CommitteeDto
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public string? LogoUrl { get; set; }
-}
-
 public class EventPhotoDto
 {
     public int Id { get; set; }

@@ -1,6 +1,7 @@
 using IEEEBackend.Dtos;
 using IEEEBackend.Interfaces;
 using IEEEBackend.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IEEEBackend.Controllers;
@@ -84,6 +85,7 @@ public class EventsController : ControllerBase
     /// Create a new event
     /// </summary>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<EventDto>> Create([FromBody] CreateEventDto createEventDto)
     {
         if (!ModelState.IsValid)
@@ -102,6 +104,7 @@ public class EventsController : ControllerBase
     /// Update an existing event
     /// </summary>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateEventDto updateEventDto)
     {
         if (!ModelState.IsValid)
@@ -125,6 +128,7 @@ public class EventsController : ControllerBase
     /// Delete an event
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _eventRepository.DeleteAsync(id);
@@ -140,6 +144,7 @@ public class EventsController : ControllerBase
     /// Upload cover photo for an event
     /// </summary>
     [HttpPost("{eventId}/cover")]
+    [Authorize]
     public async Task<ActionResult<EventPhotoDto>> UploadCoverPhoto(int eventId, IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -184,6 +189,7 @@ public class EventsController : ControllerBase
     /// Upload event photos (multiple files)
     /// </summary>
     [HttpPost("{eventId}/photos")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<EventPhotoDto>>> UploadEventPhotos(int eventId, [FromForm] List<IFormFile> files)
     {
         if (files == null || files.Count == 0)
@@ -224,6 +230,7 @@ public class EventsController : ControllerBase
     /// Delete an event photo
     /// </summary>
     [HttpDelete("{eventId}/photos/{photoId}")]
+    [Authorize]
     public async Task<IActionResult> DeleteEventPhoto(int eventId, int photoId)
     {
         var photo = await _eventPhotoRepository.GetByIdAsync(photoId);

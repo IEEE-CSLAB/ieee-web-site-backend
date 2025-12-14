@@ -1,13 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using IEEEBackend.DTOs;
+using IEEEBackend.Dtos;
 using IEEEBackend.Models;
 using IEEEBackend.Interfaces;
 
 namespace IEEEBackend.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class CommitteeController : ControllerBase
 {
     private readonly ICommitteeRepository _repository;
@@ -41,7 +42,8 @@ public class CommitteeController : ControllerBase
         return Ok(dto);
     }
 
-    [HttpPost("Create")]
+    [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CommitteeCreateDto input)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -54,6 +56,7 @@ public class CommitteeController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] CommitteeCreateDto input)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -71,6 +74,7 @@ public class CommitteeController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var entity = await _repository.GetByIdAsync(id);

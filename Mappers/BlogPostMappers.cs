@@ -1,11 +1,10 @@
 using IEEEBackend.Dtos.BlogPost;
 using IEEEBackend.Models;
 
+namespace IEEEBackend.Mappers;
 
-namespace IEEEBackend.Mappers
+public static class BlogPostMappers
 {
-    public static class BlogPostMappers  
-    {
         public static BlogPostDto ToBlogPostDto(this BlogPost blogPost)
         {
             return new BlogPostDto
@@ -32,4 +31,3 @@ namespace IEEEBackend.Mappers
             };
         }
     }
-}

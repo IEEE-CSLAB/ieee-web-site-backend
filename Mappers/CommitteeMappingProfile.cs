@@ -1,12 +1,12 @@
 using AutoMapper;
 using IEEEBackend.Models;
-using IEEEBackend.DTOs;
+using IEEEBackend.Dtos;
 
-namespace IEEEBackend.Mappings.Committee;
+namespace IEEEBackend.Mappers;
 
-public class MappingCommittee : Profile
+public class CommitteeMappingProfile : Profile
 {
-    public MappingCommittee()
+    public CommitteeMappingProfile()
     {
         CreateMap<Models.Committee, CommitteeDto>();
         CreateMap<CommitteeCreateDto, Models.Committee>();
