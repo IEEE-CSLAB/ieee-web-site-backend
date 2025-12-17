@@ -1,13 +1,17 @@
+using System.ComponentModel.DataAnnotations;
 
-namespace IEEEBackend.Dtos.BlogPost
+namespace IEEEBackend.Dtos.BlogPost;
+
+public class UpdateBlogPostRequestDto
 {
-    public class UpdateBlogPostRequestDto
-    {
+    [Required]
+    public int CommitteeId { get; set; }
 
-        public int CommitteeId { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string? Content { get; set; }
-        public string? CoverImageUrl { get; set; }
-        
-    }
+    [Required]
+    [StringLength(200)]
+    public string Title { get; set; } = string.Empty;
+
+    public string? Content { get; set; }
+
+    public string? CoverImageUrl { get; set; }
 }

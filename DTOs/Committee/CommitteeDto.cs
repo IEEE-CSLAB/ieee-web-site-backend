@@ -1,4 +1,4 @@
-namespace IEEEBackend.DTOs;
+﻿namespace IEEEBackend.Dtos;
 
 public class CommitteeDto
 {
@@ -6,7 +6,6 @@ public class CommitteeDto
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? LogoUrl { get; set; }
-
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

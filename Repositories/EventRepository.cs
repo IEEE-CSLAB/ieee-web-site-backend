@@ -76,7 +76,9 @@ public class EventRepository : IEventRepository
 
         _context.Events.Add(eventEntity);
         await _context.SaveChangesAsync();
-        return eventEntity;
+
+        // Reload with related entities for proper mapping
+        return await GetByIdAsync(eventEntity.Id) ?? eventEntity;
     }
 
     public async Task<Event> UpdateAsync(Event eventEntity)

@@ -1,15 +1,15 @@
 using IEEEBackend.Dtos.BlogPost;
 using IEEEBackend.Interfaces;
 using IEEEBackend.Mappers;
-using IEEEBackend.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-//Posts: getall(orderbytime) – getbyid - GetByCommittee -getlast8-create*-update*
-namespace IEEEBackend.Controllers
+
+namespace IEEEBackend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class BlogPostController : ControllerBase
 {
-    [Route("api/blogposts")]
-    [ApiController]
-    public class BlogPostController : ControllerBase
-    {
         private readonly IBlogPostRepository _blogPostRepository;
 
         public BlogPostController(IBlogPostRepository blogPostRepository)
@@ -28,9 +28,8 @@ namespace IEEEBackend.Controllers
         }
         // GET: api/blogposts/{id}
 
-        // GET: api/committee/{committeeId}/blogposts/ 
-           
-        [HttpGet("/committee/{committeeId}/blogposts")]
+        // GET: api/blogposts/committee/{committeeId}
+        [HttpGet("committee/{committeeId}")]
         public async Task<IActionResult> GetByCommittee([FromRoute] int committeeId)
         {
             var blogPosts = await _blogPostRepository.GetByCommitteeAsync(committeeId);
@@ -63,6 +62,7 @@ namespace IEEEBackend.Controllers
 
         // post: api/blogposts
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateBlogPostRequestDto createDto)
         {
             var blogPost = createDto.ToBlogPostFromCreateDto();
@@ -72,6 +72,7 @@ namespace IEEEBackend.Controllers
 
         // put: api/blogposts/{id}
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateBlogPostRequestDto updateDto)
         {
             var updatedBlogPost = await _blogPostRepository.UpdateAsync(id, updateDto);
@@ -84,7 +85,8 @@ namespace IEEEBackend.Controllers
         }
 
         // delete: api/blogposts/{id}
-        [HttpDelete("{id}")]    
+        [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var deletedBlogPost = await _blogPostRepository.DeleteAsync(id);
@@ -95,7 +97,4 @@ namespace IEEEBackend.Controllers
 
             return Ok(deletedBlogPost.ToBlogPostDto());
         }
-
-
     }
-}

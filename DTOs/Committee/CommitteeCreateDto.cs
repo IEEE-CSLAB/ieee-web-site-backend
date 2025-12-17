@@ -1,9 +1,8 @@
-namespace IEEEBackend.DTOs;
+namespace IEEEBackend.Dtos;
 
 public class CommitteeCreateDto
 {
     public string Name { get; set; } = string.Empty;
-
     public string? Description { get; set; }
     public string? LogoUrl { get; set; }
 }

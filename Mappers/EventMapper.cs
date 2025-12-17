@@ -23,6 +23,7 @@ public static class EventMapper
             CreatedAt = eventEntity.CreatedAt,
             UpdatedAt = eventEntity.UpdatedAt,
             Committees = eventEntity.EventCommittees?
+                .Where(ec => ec.Committee != null)
                 .Select(ec => new CommitteeDto
                 {
                     Id = ec.Committee.Id,
