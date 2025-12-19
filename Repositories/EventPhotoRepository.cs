@@ -1,7 +1,6 @@
 using IEEEBackend.Data;
 using IEEEBackend.Interfaces;
 using IEEEBackend.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace IEEEBackend.Repositories;
@@ -9,26 +8,17 @@ namespace IEEEBackend.Repositories;
 public class EventPhotoRepository : IEventPhotoRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _environment;
+    private readonly IStorageService _storageService;
     private readonly IConfiguration _configuration;
-    private readonly string _uploadPath;
 
     public EventPhotoRepository(
         ApplicationDbContext context,
-        IWebHostEnvironment environment,
+        IStorageService storageService,
         IConfiguration configuration)
     {
         _context = context;
-        _environment = environment;
+        _storageService = storageService;
         _configuration = configuration;
-        _uploadPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, 
-            _configuration["FileUpload:UploadPath"] ?? "wwwroot/uploads/events");
-        
-        // Ensure upload directory exists
-        if (!Directory.Exists(_uploadPath))
-        {
-            Directory.CreateDirectory(_uploadPath);
-        }
     }
 
     public async Task<EventPhoto?> GetCoverPhotoByEventIdAsync(int eventId)
@@ -69,7 +59,8 @@ public class EventPhotoRepository : IEventPhotoRepository
         }
 
         // Validate and save file
-        var imageUrl = await SaveFileAsync(eventId, file, isCover: true);
+        ValidateFile(file);
+        var imageUrl = await UploadToSupabaseAsync(eventId, file, isCover: true);
 
         var eventPhoto = new EventPhoto
         {
@@ -99,7 +90,8 @@ public class EventPhotoRepository : IEventPhotoRepository
 
         foreach (var file in files)
         {
-            var imageUrl = await SaveFileAsync(eventId, file, isCover: false);
+            ValidateFile(file);
+            var imageUrl = await UploadToSupabaseAsync(eventId, file, isCover: false);
 
             var eventPhoto = new EventPhoto
             {
@@ -127,12 +119,8 @@ public class EventPhotoRepository : IEventPhotoRepository
             return false;
         }
 
-        // Delete physical file
-        var filePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, eventPhoto.ImageUrl);
-        if (File.Exists(filePath))
-        {
-            File.Delete(filePath);
-        }
+        // Delete from Supabase Storage
+        await _storageService.DeleteFileAsync(eventPhoto.ImageUrl);
 
         _context.EventPhotos.Remove(eventPhoto);
         await _context.SaveChangesAsync();
@@ -151,43 +139,21 @@ public class EventPhotoRepository : IEventPhotoRepository
         return await DeleteAsync(coverPhoto.Id);
     }
 
-    private async Task<string> SaveFileAsync(int eventId, IFormFile file, bool isCover)
+    private async Task<string> UploadToSupabaseAsync(int eventId, IFormFile file, bool isCover)
     {
-        // Validate file
-        ValidateFile(file);
-
-        // Generate unique filename
-        var extension = Path.GetExtension(file.FileName);
-        var fileName = $"{Guid.NewGuid()}{extension}";
-        var eventFolder = Path.Combine(_uploadPath, eventId.ToString());
-        
-        if (!Directory.Exists(eventFolder))
-        {
-            Directory.CreateDirectory(eventFolder);
-        }
-
         var subFolder = isCover ? "cover" : "photos";
-        var finalFolder = Path.Combine(eventFolder, subFolder);
-        
-        if (!Directory.Exists(finalFolder))
-        {
-            Directory.CreateDirectory(finalFolder);
-        }
+        var folder = $"events/{eventId}/{subFolder}";
 
-        var filePath = Path.Combine(finalFolder, fileName);
+        using var stream = file.OpenReadStream();
+        var filePath = await _storageService.UploadFileAsync(
+            stream,
+            file.FileName,
+            file.ContentType,
+            folder
+        );
 
-        // Save file
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        // Return relative path for database storage
-        var relativePath = Path.Combine(_configuration["FileUpload:UploadPath"] ?? "wwwroot/uploads/events", 
-            eventId.ToString(), subFolder, fileName)
-            .Replace('\\', '/');
-
-        return relativePath;
+        // Return the full public URL
+        return _storageService.GetPublicUrl(filePath);
     }
 
     private void ValidateFile(IFormFile file)
@@ -213,4 +179,3 @@ public class EventPhotoRepository : IEventPhotoRepository
         }
     }
 }
-
