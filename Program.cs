@@ -12,6 +12,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// CORS Configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:3000",
+            "https://ieeeakdeniz.vercel.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -68,6 +83,7 @@ builder.Services.AddScoped<IExecutiveRepository, ExecutiveRepository>();
 // Add Services
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IStorageService, SupabaseStorageService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -109,14 +125,15 @@ if (app.Environment.IsDevelopment())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments for API documentation
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Global Exception Handler (must be first)
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+// CORS must be before other middleware
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 

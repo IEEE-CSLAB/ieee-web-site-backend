@@ -23,4 +23,10 @@
     <Folder Include="Models\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="IEEEBackend.Tests\**" />
+    <Content Remove="IEEEBackend.Tests\**" />
+    <None Remove="IEEEBackend.Tests\**" />
+  </ItemGroup>
+
 </Project>
