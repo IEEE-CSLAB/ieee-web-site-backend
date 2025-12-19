@@ -4,6 +4,7 @@ using AutoMapper;
 using IEEEBackend.Dtos;
 using IEEEBackend.Models;
 using IEEEBackend.Interfaces;
+using IEEEBackend.Services;
 
 namespace IEEEBackend.Controllers;
 
@@ -13,11 +14,13 @@ public class CommitteeController : ControllerBase
 {
     private readonly ICommitteeRepository _repository;
     private readonly IMapper _mapper;
+    private readonly IFileStorageService _fileStorage;
 
-    public CommitteeController(ICommitteeRepository repository, IMapper mapper)
+    public CommitteeController(ICommitteeRepository repository, IMapper mapper, IFileStorageService fileStorage)
     {
         _repository = repository;
         _mapper = mapper;
+        _fileStorage = fileStorage;
     }
 
     [HttpGet]
@@ -85,5 +88,48 @@ public class CommitteeController : ControllerBase
         await _repository.DeleteAsync(entity);
 
         return Ok(new { message = "Committee deleted successfully." });
+    }
+
+    /// <summary>
+    /// Upload logo for a committee
+    /// </summary>
+    [HttpPost("{id}/logo")]
+    [Authorize]
+    public async Task<ActionResult<CommitteeDto>> UploadLogo(int id, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("File is required.");
+        }
+
+        var committee = await _repository.GetByIdAsync(id);
+        if (committee == null)
+        {
+            return NotFound(new { message = $"Committee with ID {id} not found." });
+        }
+
+        try
+        {
+            // Delete old logo if exists
+            if (!string.IsNullOrEmpty(committee.LogoUrl))
+            {
+                await _fileStorage.DeleteFileAsync(committee.LogoUrl);
+            }
+
+            // Save new logo
+            var container = $"committees/{id}/logo";
+            var relativePath = await _fileStorage.SaveFileAsync(container, file);
+
+            // Update committee
+            committee.LogoUrl = relativePath;
+            await _repository.UpdateAsync(committee);
+
+            var dto = _mapper.Map<CommitteeDto>(committee);
+            return Ok(dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

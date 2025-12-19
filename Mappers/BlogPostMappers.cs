@@ -13,7 +13,7 @@ public static class BlogPostMappers
                 CommitteeId = blogPost.CommitteeId,
                 Title = blogPost.Title,
                 Content = blogPost.Content,
-                CoverImageUrl = blogPost.CoverImageUrl,
+                CoverImageUrl = blogPost.CoverImageUrl != null ? $"/{blogPost.CoverImageUrl}" : null,
                 CreatedAt = blogPost.CreatedAt,
                 UpdatedAt = blogPost.UpdatedAt
             };

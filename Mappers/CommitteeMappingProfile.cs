@@ -8,7 +8,9 @@ public class CommitteeMappingProfile : Profile
 {
     public CommitteeMappingProfile()
     {
-        CreateMap<Models.Committee, CommitteeDto>();
+        CreateMap<Models.Committee, CommitteeDto>()
+            .ForMember(dest => dest.LogoUrl, opt => opt.MapFrom(src => 
+                src.LogoUrl != null ? $"/{src.LogoUrl}" : null));
         CreateMap<CommitteeCreateDto, Models.Committee>();
     }
 }

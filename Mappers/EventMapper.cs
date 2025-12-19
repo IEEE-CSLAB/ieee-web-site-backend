@@ -77,8 +77,16 @@ public static class EventMapper
         // Update EventCommittees if provided
         if (updateEventDto.CommitteeIds != null)
         {
-            // Remove existing EventCommittees
-            eventEntity.EventCommittees.Clear();
+            // Ensure collection is initialized
+            if (eventEntity.EventCommittees == null)
+            {
+                eventEntity.EventCommittees = new List<EventCommittee>();
+            }
+            else
+            {
+                // Remove existing EventCommittees
+                eventEntity.EventCommittees.Clear();
+            }
 
             // Add new EventCommittees
             if (updateEventDto.CommitteeIds.Any())

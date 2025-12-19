@@ -81,6 +81,7 @@ builder.Services.AddScoped<IExecutiveRepository, ExecutiveRepository>();
 // Add Services
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

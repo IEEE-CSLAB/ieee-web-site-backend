@@ -1,6 +1,7 @@
 using IEEEBackend.Dtos.BlogPost;
 using IEEEBackend.Interfaces;
 using IEEEBackend.Mappers;
+using IEEEBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace IEEEBackend.Controllers;
 public class BlogPostController : ControllerBase
 {
         private readonly IBlogPostRepository _blogPostRepository;
+        private readonly IFileStorageService _fileStorage;
 
-        public BlogPostController(IBlogPostRepository blogPostRepository)
+        public BlogPostController(IBlogPostRepository blogPostRepository, IFileStorageService fileStorage)
         {
             _blogPostRepository = blogPostRepository;
+            _fileStorage = fileStorage;
         }
 
         // GET: api/blogposts
@@ -96,5 +99,52 @@ public class BlogPostController : ControllerBase
             }
 
             return Ok(deletedBlogPost.ToBlogPostDto());
+        }
+
+        /// <summary>
+        /// Upload cover photo for a blog post
+        /// </summary>
+        [HttpPost("{id}/cover")]
+        [Authorize]
+        public async Task<ActionResult<BlogPostDto>> UploadCover(int id, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("File is required.");
+            }
+
+            var blogPost = await _blogPostRepository.GetByIdAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound($"Blog post with ID {id} not found.");
+            }
+
+            try
+            {
+                // Delete old cover if exists
+                if (!string.IsNullOrEmpty(blogPost.CoverImageUrl))
+                {
+                    await _fileStorage.DeleteFileAsync(blogPost.CoverImageUrl);
+                }
+
+                // Save new cover
+                var container = $"blogs/{id}/cover";
+                var relativePath = await _fileStorage.SaveFileAsync(container, file);
+
+                // Update blog post with new cover URL
+                var updatedBlogPost = await _blogPostRepository.UpdateAsync(id, new UpdateBlogPostRequestDto
+                {
+                    Title = blogPost.Title,
+                    Content = blogPost.Content,
+                    CommitteeId = blogPost.CommitteeId,
+                    CoverImageUrl = relativePath
+                });
+
+                return Ok(updatedBlogPost!.ToBlogPostDto());
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
