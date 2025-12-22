@@ -28,6 +28,19 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Health check endpoint for monitoring and keeping the server alive
+    /// </summary>
+    [HttpGet("health")]
+    public IActionResult Health()
+    {
+        return Ok(new { 
+            status = "healthy", 
+            timestamp = DateTime.UtcNow,
+            service = "IEEE Backend API"
+        });
+    }
+
+    /// <summary>
     /// Admin login
     /// </summary>
     [HttpPost("login")]
